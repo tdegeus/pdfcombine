@@ -1,2 +1,3 @@
 # pdfcombine
-Combine PDF files with Ghostscript 
+
+Combine PDF files with Ghostscript.
