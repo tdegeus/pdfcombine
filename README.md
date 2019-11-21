@@ -10,6 +10,17 @@ Combine PDF files with Ghostscript.
 >   
 >   (c - [MIT](https://github.com/tdegeus/pdfcombine/blob/master/LICENSE)) T.W.J. de Geus (Tom) | tom@geus.me | www.geus.me | [github.com/tdegeus/pdfcombine](https://github.com/tdegeus/pdfcombine)
 
+# Contents
+
+<!-- MarkdownTOC -->
+
+- [Getting pdfcombine](#getting-pdfcombine)
+    - [Using conda](#using-conda)
+    - [From source](#from-source)
+- [Create a new release](#create-a-new-release)
+
+<!-- /MarkdownTOC -->
+
 # Getting pdfcombine
 
 ## Using conda
@@ -29,3 +40,10 @@ cd pdfcombine
 cmake .
 make install
 ```
+# Create a new release
+
+1.  Update the version number in `pdfcombine``. 
+
+2.  Upload the changes to GitHub and create a new release there (with the correct version number).
+
+3.  Update the package at [conda-forge](https://github.com/conda-forge/pyxtensor-feedstock).
