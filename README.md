@@ -42,7 +42,7 @@ make install
 ```
 # Create a new release
 
-1.  Update the version number in `pdfcombine``. 
+1.  Update the version number in `pdfcombine`. 
 
 2.  Upload the changes to GitHub and create a new release there (with the correct version number).
 
