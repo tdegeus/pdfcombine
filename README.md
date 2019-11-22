@@ -1,6 +1,12 @@
 # pdfcombine
 
-Combine PDF files with Ghostscript.
+Simple command-line script that allows you to combine (concatenate) PDF-files:
+
+```none
+pdfcombine [options] <files>...
+```
+
+Note that the script is in fact a simple Python script that wraps Ghostscript. 
 
 >   **Disclaimer**
 >   
@@ -17,6 +23,7 @@ Combine PDF files with Ghostscript.
 - [Getting pdfcombine](#getting-pdfcombine)
     - [Using conda](#using-conda)
     - [From source](#from-source)
+- [Usage](#usage)
 - [Create a new release](#create-a-new-release)
 
 <!-- /MarkdownTOC -->
@@ -40,6 +47,35 @@ cd pdfcombine
 cmake .
 make install
 ```
+
+# Usage
+
+The usage is as follows (see `pdfcombine --help`):
+
+```bash
+pdfcombine
+  Combine several PDFs to a single PDF.
+
+Usage:
+  pdfcombine [options] <files>...
+
+Options:
+      --openleft      Enforce that the next PDF always starts on an even page.
+      --openright     Enforce that the next PDF always starts on an odd page.
+      --title=<N>     Set the title  of the output PDF.
+      --author=<N>    Set the author of the output PDF.
+      --no-bookmarks  Do not use original filenames as bookmarks.
+      --add-ps=<N>    Add commands to the generated PostScript program (inspect using '--verbose').
+      --ps=<N>        Overwrite the automatically generated PostScript program.
+      --no-ps         Do not run any PostScript program (to edit meta-data).
+  -o, --output=<N>    Name of the output file. [default: binder.pdf]
+  -f, --force         Force overwrite of existing output.
+  -s, --silent        Do not print any progress.
+      --verbose       Verbose all commands.
+  -h, --help          Show help.
+      --version       Show version.
+```
+
 # Create a new release
 
 1.  Update the version number in `pdfcombine`. 
