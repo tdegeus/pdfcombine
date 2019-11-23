@@ -60,7 +60,7 @@ def Run(cmd,verbose=False,**kwargs):
 # ---------------------------------- parse command line arguments ----------------------------------
 
 # parse command-line arguments
-args = docopt.docopt(__doc__, version='0.3.1')
+args = docopt.docopt(__doc__, version='0.3.2')
 
 # change keys to simplify implementation:
 # - remove leading "-" and "--" from options
