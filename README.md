@@ -21,10 +21,10 @@ Note that the script is in fact a simple Python script that wraps Ghostscript.
 <!-- MarkdownTOC -->
 
 - [Getting pdfcombine](#getting-pdfcombine)
-    - [Using conda](#using-conda)
-    - [From source](#from-source)
+  - [Using conda](#using-conda)
+  - [Using PyPi](#using-pypi)
+  - [From source](#from-source)
 - [Usage](#usage)
-- [Create a new release](#create-a-new-release)
 
 <!-- /MarkdownTOC -->
 
@@ -36,6 +36,12 @@ Note that the script is in fact a simple Python script that wraps Ghostscript.
 conda install -c conda-forge pdfcombine
 ```
 
+## Using PyPi
+
+```bash
+pip install pdfcombine
+```
+
 ## From source
 
 ```bash
@@ -44,8 +50,7 @@ git checkout https://github.com/tdegeus/pdfcombine.git
 cd pdfcombine
 
 # Install
-cmake .
-make install
+python -m pip install .
 ```
 
 # Usage
@@ -75,11 +80,3 @@ Options:
   -h, --help          Show help.
       --version       Show version.
 ```
-
-# Create a new release
-
-1.  Update the version number in `pdfcombine`. 
-
-2.  Upload the changes to GitHub and create a new release there (with the correct version number).
-
-3.  Update the package at [conda-forge](https://github.com/conda-forge/pdfcombine-feedstock).
