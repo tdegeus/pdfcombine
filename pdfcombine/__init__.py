@@ -37,6 +37,9 @@ import subprocess
 import shutil
 import tempfile
 import click
+import pkg_resources
+
+version = pkg_resources.require("pdfcombine")[0].version
 
 # --------------------------------------------------------------------------------------------------
 
@@ -98,7 +101,7 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
 def main():
 
     # Parse command-line arguments
-    args = docopt.docopt(__doc__, version='0.4.0')
+    args = docopt.docopt(__doc__, version=version)
 
     # Change keys to simplify implementation:
     # - remove leading "-" and "--" from options
