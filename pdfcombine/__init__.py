@@ -53,7 +53,7 @@ def Run(cmd, verbose=False):
 
     if verbose:
         print(cmd)
-        print(out, end='')
+        print(out)
 
     return out
 
