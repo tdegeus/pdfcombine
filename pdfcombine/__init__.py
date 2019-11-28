@@ -38,6 +38,8 @@ import shutil
 import tempfile
 import click
 
+__version__ = '0.4.3'
+
 # --------------------------------------------------------------------------------------------------
 
 def Error(msg):
@@ -98,7 +100,7 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
 def main():
 
     # Parse command-line arguments
-    args = docopt.docopt(__doc__, version='0.4.0')
+    args = docopt.docopt(__doc__, version=__version__)
 
     # Change keys to simplify implementation:
     # - remove leading "-" and "--" from options
