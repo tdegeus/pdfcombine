@@ -38,13 +38,13 @@ import shutil
 import tempfile
 import click
 
-__version__ = '0.4.3'
+__version__ = '1.0.0'
 
 # --------------------------------------------------------------------------------------------------
 
-def Error(msg):
+def Error(text):
 
-    print(msg)
+    print(text)
     sys.exit(1)
 
 # --------------------------------------------------------------------------------------------------
@@ -99,7 +99,6 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
 
 def main():
 
-    # Parse command-line arguments
     args = docopt.docopt(__doc__, version=__version__)
 
     # Change keys to simplify implementation:
@@ -110,25 +109,20 @@ def main():
     args = {key.replace('-','_'): args[key] for key in args}
     args = {re.sub(r'(<)(.*)(>)',r'\2',key): args[key] for key in args}
 
-    # Check: required command
     if not shutil.which('gs'):
         Error('"gs" not found')
 
-    # Check: exclusive options
     if args['openright'] and args['openleft']:
         Error('"--openright" and "--openleft" are exclusive options')
 
-    # Check: files exist
     for file in args['files']:
         if not os.path.isfile(file):
             Error('"{0:s}" does not exist'.format(file))
 
-    # Check: input and output are not the same
     for file in args['files']:
         if os.path.abspath(file) == os.path.abspath(args['output']):
             Error('"{output:s}" is also an input-file, this might cause problems'.format(**args))
 
-    # Prompt: confirm overwrite
     if os.path.isfile(args['output']) and not args['force']:
         if not click.confirm('Overwrite existing "{output:s}"'.format(**args)):
             sys.exit(1)
