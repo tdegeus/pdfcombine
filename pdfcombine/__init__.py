@@ -1,8 +1,8 @@
 '''pdfcombine
   Combine several PDFs to a single PDF.
 
-  Note that by default a PostScript file is used to set the meta-data of the output PDF-file. This
-  default PostScript file can be customised (--title, --author, --no-bookmarks, --add-ps),
+  Note that by default a PostScript script is used to set the meta-data of the output PDF-file.
+  This default PostScript script can be customised (--title, --author, --no-bookmarks, --add-ps),
   completely manually specified (--ps), or suppressed altogether (--no-ps).
 
 Usage:
