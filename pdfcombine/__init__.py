@@ -1,8 +1,8 @@
 '''pdfcombine
   Combine several PDFs to a single PDF.
 
-  Note that by default a PostScript file is used to set the meta-data of the output PDF-file. This
-  default PostScript file can be customised (--title, --author, --no-bookmarks, --add-ps),
+  Note that by default a PostScript script is used to set the meta-data of the output PDF-file.
+  This default PostScript script can be customised (--title, --author, --no-bookmarks, --add-ps),
   completely manually specified (--ps), or suppressed altogether (--no-ps).
 
 Usage:
@@ -27,26 +27,30 @@ Options:
 (c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
 '''
 
-# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
 
 import sys
 import os
 import re
-import docopt
 import subprocess
 import shutil
 import tempfile
+import docopt
 import click
 
-__version__ = '0.4.3'
+__version__ = '1.0.0'
 
 # --------------------------------------------------------------------------------------------------
+# Command-line error: show message and quit with exit code "1"
+# --------------------------------------------------------------------------------------------------
 
-def Error(msg):
+def Error(text):
 
-    print(msg)
+    print(text)
     sys.exit(1)
 
+# --------------------------------------------------------------------------------------------------
+# Run command (and verbose it), and return the command's output
 # --------------------------------------------------------------------------------------------------
 
 def Run(cmd, verbose=False):
@@ -59,6 +63,8 @@ def Run(cmd, verbose=False):
 
     return out
 
+# --------------------------------------------------------------------------------------------------
+# Read number of pages of each document
 # --------------------------------------------------------------------------------------------------
 
 def NumberOfPages(files, verbose=False):
@@ -75,6 +81,8 @@ def NumberOfPages(files, verbose=False):
 
     return n_pages
 
+# --------------------------------------------------------------------------------------------------
+# Construct default PostScript script
 # --------------------------------------------------------------------------------------------------
 
 def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
@@ -96,10 +104,11 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
     return '[ ' + '\n[ '.join(out)
 
 # --------------------------------------------------------------------------------------------------
+# Main routine
+# --------------------------------------------------------------------------------------------------
 
 def main():
 
-    # Parse command-line arguments
     args = docopt.docopt(__doc__, version=__version__)
 
     # Change keys to simplify implementation:
@@ -110,25 +119,20 @@ def main():
     args = {key.replace('-','_'): args[key] for key in args}
     args = {re.sub(r'(<)(.*)(>)',r'\2',key): args[key] for key in args}
 
-    # Check: required command
     if not shutil.which('gs'):
         Error('"gs" not found')
 
-    # Check: exclusive options
     if args['openright'] and args['openleft']:
         Error('"--openright" and "--openleft" are exclusive options')
 
-    # Check: files exist
     for file in args['files']:
         if not os.path.isfile(file):
             Error('"{0:s}" does not exist'.format(file))
 
-    # Check: input and output are not the same
     for file in args['files']:
         if os.path.abspath(file) == os.path.abspath(args['output']):
             Error('"{output:s}" is also an input-file, this might cause problems'.format(**args))
 
-    # Prompt: confirm overwrite
     if os.path.isfile(args['output']) and not args['force']:
         if not click.confirm('Overwrite existing "{output:s}"'.format(**args)):
             sys.exit(1)
