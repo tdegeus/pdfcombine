@@ -27,19 +27,21 @@ Options:
 (c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
 '''
 
-# --------------------------------------------------------------------------------------------------
+# ==================================================================================================
 
 import sys
 import os
 import re
-import docopt
 import subprocess
 import shutil
 import tempfile
+import docopt
 import click
 
 __version__ = '1.0.0'
 
+# --------------------------------------------------------------------------------------------------
+# Command-line error: show message and quit with exit code "1"
 # --------------------------------------------------------------------------------------------------
 
 def Error(text):
@@ -48,6 +50,8 @@ def Error(text):
     sys.exit(1)
 
 # --------------------------------------------------------------------------------------------------
+# Run command (and verbose it), and return the command's output
+# --------------------------------------------------------------------------------------------------
 
 def Run(cmd, verbose=False):
 
@@ -55,10 +59,12 @@ def Run(cmd, verbose=False):
 
     if verbose:
         print(cmd)
-        print(out)
+        print(out, end='')
 
     return out
 
+# --------------------------------------------------------------------------------------------------
+# Read number of pages of each document
 # --------------------------------------------------------------------------------------------------
 
 def NumberOfPages(files, verbose=False):
@@ -75,6 +81,8 @@ def NumberOfPages(files, verbose=False):
 
     return n_pages
 
+# --------------------------------------------------------------------------------------------------
+# Construct default PostScript script
 # --------------------------------------------------------------------------------------------------
 
 def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
@@ -95,6 +103,8 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
 
     return '[ ' + '\n[ '.join(out)
 
+# --------------------------------------------------------------------------------------------------
+# Main routine
 # --------------------------------------------------------------------------------------------------
 
 def main():

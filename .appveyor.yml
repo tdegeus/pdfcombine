@@ -30,9 +30,15 @@ install:
   - conda config --set always_yes yes --set changeps1 no
   - conda update -q conda
   - conda info -a
-  - conda install -c conda-forge pdfcombine
+  - conda install -c conda-forge python
+  - conda install -c conda-forge setuptools
+  - conda install -c conda-forge pip
+  - conda install -c conda-forge docopt
+  - conda install -c conda-forge click
+  - conda install -c conda-forge ghostscript
   - conda install -c conda-forge numpy
   - conda install -c conda-forge matplotlib
+  - python -m pip install .
   - python test/generate.py
 
 build_script:
