@@ -42,4 +42,5 @@ install:
   - python test/generate.py
 
 build_script:
+  - pdfcombine --version
   - pdfcombine fig1.pdf fig2.pdf fig3.pdf
