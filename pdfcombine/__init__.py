@@ -29,25 +29,13 @@ Options:
 
 # ==================================================================================================
 
-import sys
 import os
-import re
 import subprocess
 import shutil
 import tempfile
-import docopt
-import click
+from itertools import accumulate
 
-__version__ = '1.0.0'
-
-# --------------------------------------------------------------------------------------------------
-# Command-line error: show message and quit with exit code "1"
-# --------------------------------------------------------------------------------------------------
-
-def Error(text):
-
-    print(text)
-    sys.exit(1)
+__version__ = '1.1.0'
 
 # --------------------------------------------------------------------------------------------------
 # Run command (and verbose it), and return the command's output
@@ -70,7 +58,7 @@ def Run(cmd, verbose=False):
 def NumberOfPages(files, verbose=False):
 
     if verbose:
-        print('\n---- reading number of pages per file ----')
+        print('\n---- reading number of pages per file ----\n')
 
     n_pages = []
 
@@ -85,7 +73,7 @@ def NumberOfPages(files, verbose=False):
 # Construct default PostScript script
 # --------------------------------------------------------------------------------------------------
 
-def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
+def DefaultPostScript(files, start_page, title, author, bookmarks=True):
 
     out = []
 
@@ -95,118 +83,162 @@ def DefaulPostScript(files, n_pages, title, author, bookmarks=True):
     if author:
         out += ['/Author ({0:s})'.format(author)]
 
+    if type(bookmarks) == str:
+        bookmarks = [bookmarks]
+    if type(bookmarks) != list:
+        bookmarks = [i for i in files]
+
     if bookmarks:
-        i = 1
-        for file, n in zip(files, n_pages):
-            out += ['/Page {0:d} /Title ({1:s}) /OUT pdfmark'.format(i, file)]
-            i += n
+        for title, page in zip(bookmarks, start_page):
+            out += ['/Page {0:d} /Title ({1:s}) /OUT pdfmark'.format(page, title)]
 
     return '[ ' + '\n[ '.join(out)
 
 # --------------------------------------------------------------------------------------------------
-# Main routine
+# Combine PDFs
 # --------------------------------------------------------------------------------------------------
 
-def main():
+def combine(
+        files, # list of files
+        output, # name of output file (overwritten if exists)
+        openleft = False, # True/False
+        openright = False, # True/False
+        ps = True, # None/True -> generate automatically, str -> Use user input, False = switch off
+        add_ps = None, # str, to append generated PostScript script
+        bookmarks = True, # True -> use filename, list(str) -> specify per file
+        title = 'Binder', # title of output PDF
+        author = 'pdfcombine', # author of output PDF
+        verbose = False, # verbose
+    ):
+    r'''
+Combine PDFs
 
-    args = docopt.docopt(__doc__, version=__version__)
+:arguments:
 
-    # Change keys to simplify implementation:
-    # - remove leading "-" and "--" from options
-    # - change "-" to "_" to facilitate direct use in print format
-    # - remove "<...>"
-    args = {re.sub(r'([\-]{1,2})(.*)',r'\2',key): args[key] for key in args}
-    args = {key.replace('-','_'): args[key] for key in args}
-    args = {re.sub(r'(<)(.*)(>)',r'\2',key): args[key] for key in args}
+        **files** (``<str>`` | ``<list<str>>``)
+            List of PDF files to combine.
+
+        **output** (``<str>``)
+            Name of output file (overwritten if exists).
+
+:options:
+
+        **openleft** ([``False``] | ``True``)
+            Make sure each 'chapter' begins on a left-page.
+
+        **openright** ([``False``] | ``True``)
+            Make sure each 'chapter' begins on a left-page.
+
+        **ps** ([``True``] | ``False`` | ``<str>``)
+            If ``True``: generate a PostScript script with set title, author, and bookmarks.
+            If ``False``: no meta-data is written.
+
+        **add_ps**
+            None, # str, to append generated PostScript script
+        **print_ps**
+            False,
+        **bookmarks**
+            True, # True -> use filename, list(str) -> specify per file
+        **title**
+            'Binder', # title of output PDF
+        **author**
+            'pdfcombine', # author of output PDF
+        **verbose**
+            False, # verbose
+    '''
+
+    temp_dir = None
+
+    if type(files) == str:
+        files = [files]
+
+    # Basic checking
 
     if not shutil.which('gs'):
-        Error('"gs" not found')
+        raise IOError('"gs" not found')
 
-    if args['openright'] and args['openleft']:
-        Error('"--openright" and "--openleft" are exclusive options')
+    if openright and openleft:
+        raise IOError('"openright" and "openleft" are exclusive options')
 
-    for file in args['files']:
+    for file in files:
         if not os.path.isfile(file):
-            Error('"{0:s}" does not exist'.format(file))
+            raise IOError('"{0:s}" does not exist'.format(file))
 
-    for file in args['files']:
-        if os.path.abspath(file) == os.path.abspath(args['output']):
-            Error('"{output:s}" is also an input-file, this might cause problems'.format(**args))
-
-    if os.path.isfile(args['output']) and not args['force']:
-        if not click.confirm('Overwrite existing "{output:s}"'.format(**args)):
-            sys.exit(1)
+    for file in files:
+        if os.path.abspath(file) == os.path.abspath(output):
+            raise IOError('"{0:s}" is also an input-file, choose a different output'.format(output))
 
     # Read number of pages
-    if args['openleft'] or args['openright'] or not args['no_bookmarks']:
-        n_pages = NumberOfPages(args['files'], args['verbose'])
+
+    if openleft or openright or bookmarks:
+        n_pages = NumberOfPages(files, verbose)
         is_even = [False if n % 2 != 0 else True for n in n_pages]
 
+    if openleft:
+        start_page = [2] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
+    elif openright:
+        start_page = [1] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
+    else:
+        start_page = [1] + [i for i in n_pages]
+
+    start_page = list(accumulate(start_page))
+
     # Store PostScript commands to set metadata in a temporary file
-    if not args['no_ps']:
 
-        # Generate (or read) PostScript commands to set metadata
-        if args['ps']:
-            ps = args['ps']
-        else:
-            ps = DefaulPostScript(
-              files = args['files'],
-              n_pages = n_pages,
-              title = args['title'],
-              author = args['author'],
-              bookmarks = not args['no_bookmarks'])
+    if ps != False:
 
-        # Add PostScript commands from command-line
-        if args['add_ps']:
-            ps += '\n' + args['add_ps']
+        temp_dir = tempfile.mkdtemp()
+        temp_ps = os.path.join(temp_dir, 'pdfcombine.ps')
 
-        # Store in temporary file
-        tempFile = os.path.join(tempfile.mkdtemp(), 'pdfcombine.ps')
-        open(tempFile, 'w').write(ps)
-        if args['verbose']:
-            print('\n---- created "{0:s}" ----\n\n{1:s}'.format(tempFile, ps))
+        if ps == True or ps is None:
+            ps = DefaultPostScript(
+              files = files,
+              start_page = start_page,
+              title = title,
+              author = author,
+              bookmarks = bookmarks)
+        elif type(ps) != str:
+            raise IOError('Unknown type "ps"')
 
-    # Construct GhostScript command to combine PDFs
-    if True:
+        if add_ps:
+            ps += '\n' + add_ps
 
-        if args['verbose']:
-            print('\n---- combining files ----\n')
+        if verbose:
+            print('\n---- created "{0:s}" ----\n'.format(temp_ps))
+            print(ps)
 
-        cmd = 'gs -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{output:s}"'.format(
-          **args)
+        open(temp_ps, 'w').write(ps)
 
-        # Open left: start with a blank page
-        if args['openleft']:
-            cmd += ' -c showpage'
+    # Construct and run GhostScript command to combine PDFs
 
-        # Loop of insert the files in order of appearance
-        # Optionally insert banks page if the previous document had an odd number of pages
-        for i, file in enumerate(args['files']):
-            if i > 0:
-                if (args['openleft'] or args['openright']) and not is_even[i-1]:
-                    cmd += ' -c showpage'
-            cmd += ' -f "{0:s}"'.format(file)
+    if verbose:
+        print('\n---- combining files ----\n')
 
-        # Add pdfmarks
-        if not args['no_ps']:
-            cmd += ' ' + tempFile
+    cmd = 'gs -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{0:s}"'.format(output)
 
-    # Execute the GhostScript command
-    Run(cmd, args['verbose'])
+    if openleft:
+        cmd += ' -c showpage'
 
-    # Clean-up: remove temporary file and directory
-    if not args['no_ps']:
-        if args['verbose']:
-            print('\n---- cleaning up ----\n')
-        shutil.rmtree(os.path.split(tempFile)[0])
-        if args['verbose']:
-            print('rm -r {tempFile:s}'.format(tempFile=tempFile))
+    for i, file in enumerate(files):
 
-    # Print progress
-    if not args['silent']:
-        print('[pdfcombine] {output:s}'.format(**args))
+        if i > 0:
+            if (openleft or openright) and not is_even[i-1]:
+                cmd += ' -c showpage'
 
-# --------------------------------------------------------------------------------------------------
+        cmd += ' -f "{0:s}"'.format(file)
 
-if __name__ == '__main__':
-    main()
+    if type(ps) == str:
+        cmd += ' ' + temp_ps
+
+    Run(cmd, verbose)
+
+    # Clean-up remove temporary file and directory
+
+    if temp_dir is None:
+        return
+
+    if verbose:
+        print('\n---- cleaning up ----\n')
+        print('rm -r {0:s}'.format(temp_dir))
+
+    shutil.rmtree(temp_dir)
