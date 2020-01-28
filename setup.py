@@ -1,5 +1,7 @@
 
 from setuptools import setup
+from setuptools import find_packages
+
 import re
 
 filepath = 'pdfcombine/__init__.py'
@@ -11,11 +13,11 @@ setup(
     license = 'MIT',
     author = 'Tom de Geus',
     author_email = 'tom@geus.me',
-    description = 'Script of combine PDF files (wrapper around GhostScript)',
-    long_description = 'Script of combine PDF files (wrapper around GhostScript)',
+    description = 'Script to combine PDF files (wrapper around GhostScript)',
+    long_description = 'Script to combine PDF files (wrapper around GhostScript)',
     keywords = 'PDF, GhostScript',
     url = 'https://github.com/tdegeus/pdfcombine',
-    packages = ['pdfcombine'],
-    install_requires = ['docopt>=0.6.2', 'click>=4.0'],
+    packages = find_packages(),
+    install_requires = ['docopt>=0.6.2', 'click>=4.0', 'pyyaml>=1.0'],
     entry_points = {
-        'console_scripts': ['pdfcombine = pdfcombine:main']})
+        'console_scripts': ['pdfcombine = pdfcombine.cli.pdfcombine:main']})

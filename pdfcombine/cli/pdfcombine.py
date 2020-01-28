@@ -1,0 +1,214 @@
+'''pdfcombine
+    Combine several PDFs to a single PDF.
+
+    By default a PostScript script is used to set the meta-data of the output PDF-file.
+    This default PostScript script can be:
+
+    *   Customised:
+
+            title
+                Set title of the output PDF.
+
+            author
+                Set the author of the output PDF.
+
+            no-bookmarks
+                Switch-off bookmarks added for each 'document'.
+
+            add-ps
+                Add Custom PostScript code.
+
+    *   Manually specified:
+
+            ps
+                Set PostScript script (overwrites automatically generated script).
+
+    *   Suppressed:
+
+            no-ps
+                Switch-off the use of a PostScript-script.
+
+    To include custom bookmarks a YAML input file can be used, e.g.::
+
+        files:
+            - file: 1.pdf
+              title: First file
+            - file: 2.pdf
+              title: Second file
+
+        openleft: True
+        title: Binder
+        author: Tom de Geus
+        output: binder.pdf
+
+    As observed the "combine" field contains all input files (in the correct order)
+    optionally the bookmark titles. In addition, all options can be specified.
+    Note, these options overwrite command-line options. To use with automatic bookmarks::
+
+        files:
+            - 1.pdf
+            - 2.pdf
+
+        ...
+
+Usage:
+    pdfcombine [options] <files>...
+
+Options:
+    -y, --yaml         Read input files (and settings) from a YAML-file.
+        --openleft     Enforce that each 'chapter' starts on an even page.
+        --openright    Enforce that each 'chapter' starts on an odd page.
+        --title=<N>    Set the title of the output PDF.
+        --author=<N>   Set the author of the output PDF.
+        --no-bookmarks Do not write
+        --add-ps=<N>   Add commands to the generated PostScript script.
+        --ps=<N>       Overwrite the automatically generated PostScript script.
+        --no-ps        Do not run any PostScript script (to edit meta-data).
+    -o, --output=<N>   Name of the output file. [default: binder.pdf]
+    -f, --force        Force overwrite of existing output.
+    -s, --silent       Do not print any progress.
+        --verbose      Verbose all commands.
+    -h, --help         Show help.
+        --version      Show version.
+
+(c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
+'''
+
+# --------------------------------------------------------------------------------------------------
+
+import docopt
+import click
+import os
+import sys
+
+from .. import __version__
+from .. import combine
+
+# --------------------------------------------------------------------------------------------------
+# Command-line error: show message and quit with exit code "1"
+# --------------------------------------------------------------------------------------------------
+
+def error(text):
+
+    print(text)
+    sys.exit(1)
+
+# --------------------------------------------------------------------------------------------------
+# read YAML file
+# --------------------------------------------------------------------------------------------------
+
+def read_yaml(files):
+
+    import yaml
+
+    if len(files) != 1:
+        error('All files need to be specified in the YAML input')
+
+    filename = files[0]
+
+    if not os.path.isfile(filename):
+        error('"{0:s} does not exist'.format(filename))
+
+    return yaml.load(open(filename, 'r').read(), Loader=yaml.FullLoader)
+
+# --------------------------------------------------------------------------------------------------
+# main program
+# --------------------------------------------------------------------------------------------------
+
+def main():
+
+    args = docopt.docopt(__doc__, version=__version__)
+
+    files = args['<files>']
+    output = args['--output']
+    openleft = args['--openleft']
+    openright = args['--openright']
+    ps = args['--ps']
+    add_ps = args['--add-ps']
+    bookmarks = not args['--no-bookmarks']
+    title = args['--title']
+    author = args['--author']
+    verbose = args['--verbose']
+    silent = args['--silent']
+
+    if args['--no-ps']:
+        ps = False
+    elif type(ps) != str:
+        ps = True
+
+    if args['--yaml']:
+
+        info = read_yaml(files)
+
+        if 'files' in info:
+            if len(info['files']) > 0:
+                if type(info['files'][0] == dict):
+                    files = [i['file'] for i in info['files']]
+                    bookmarks = [i['title'] for i in info['files']]
+                else:
+                    files = [i for i in info['files']]
+
+        if 'output' in info:
+            output = info['output']
+
+        if 'openleft' in info:
+            openleft = info['openleft']
+
+        if 'openright' in info:
+            openright = info['openright']
+
+        if 'ps' in info:
+            ps = info['ps']
+
+        if 'add-ps' in info:
+            add_ps = info['add-ps']
+
+        if 'bookmarks' in info:
+            bookmarks = info['bookmarks']
+
+        if 'title' in info:
+            title = info['title']
+
+        if 'author' in info:
+            author = info['author']
+
+        if 'verbose' in info:
+            verbose = info['verbose']
+
+        if 'silent' in info:
+            silent = info['silent']
+
+        if 'no-ps' in info:
+            if info['no-ps']:
+                ps = False
+
+    if os.path.isfile(output) and not args['--force']:
+        if not click.confirm('Overwrite existing "{0:s}"?'.format(output)):
+            sys.exit(1)
+
+    try:
+        combine(
+            files = files,
+            output = output,
+            openleft = openleft,
+            openright = openright,
+            ps = ps,
+            add_ps = add_ps,
+            bookmarks = bookmarks,
+            title = title,
+            author = author,
+            verbose = verbose)
+    except Exception as e:
+        print(str(e))
+        sys.exit(1)
+
+    if not silent:
+        print('[pdfcombine] {0:s}'.format(output))
+
+# --------------------------------------------------------------------------------------------------
+# command-line call
+# --------------------------------------------------------------------------------------------------
+
+if __name__ == '__main__':
+
+    main()
