@@ -1,33 +1,3 @@
-'''pdfcombine
-  Combine several PDFs to a single PDF.
-
-  Note that by default a PostScript script is used to set the meta-data of the output PDF-file.
-  This default PostScript script can be customised (--title, --author, --no-bookmarks, --add-ps),
-  completely manually specified (--ps), or suppressed altogether (--no-ps).
-
-Usage:
-  pdfcombine [options] <files>...
-
-Options:
-      --openleft      Enforce that the next PDF always starts on an even page.
-      --openright     Enforce that the next PDF always starts on an odd page.
-      --title=<N>     Set the title of the output PDF.
-      --author=<N>    Set the author of the output PDF.
-      --no-bookmarks  Do not use original filenames as bookmarks.
-      --add-ps=<N>    Add commands to the generated PostScript program (inspect using '--verbose').
-      --ps=<N>        Overwrite the automatically generated PostScript program.
-      --no-ps         Do not run any PostScript program (to edit meta-data).
-  -o, --output=<N>    Name of the output file. [default: binder.pdf]
-  -f, --force         Force overwrite of existing output.
-  -s, --silent        Do not print any progress.
-      --verbose       Verbose all commands.
-  -h, --help          Show help.
-      --version       Show version.
-
-(c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
-'''
-
-# ==================================================================================================
 
 import os
 import subprocess
@@ -42,6 +12,9 @@ __version__ = '1.1.0'
 # --------------------------------------------------------------------------------------------------
 
 def Run(cmd, verbose=False):
+    r'''
+Run command, optionally verbose command and output, and return output.
+    '''
 
     out = subprocess.check_output(cmd, shell=True).decode('utf-8')
 
@@ -56,6 +29,16 @@ def Run(cmd, verbose=False):
 # --------------------------------------------------------------------------------------------------
 
 def NumberOfPages(files, verbose=False):
+    r'''
+Read the number of pages of a (list of) PDF(s), using GhostScript.
+The output is a (list of) integers.
+    '''
+
+    return_int = False
+
+    if type(files) == str:
+        files = [files]
+        return_int = True
 
     if verbose:
         print('\n---- reading number of pages per file ----\n')
@@ -67,13 +50,44 @@ def NumberOfPages(files, verbose=False):
         out = Run(cmd, verbose)
         n_pages += [int(out)]
 
+    if return_int:
+        return n_pages[0]
+
     return n_pages
 
 # --------------------------------------------------------------------------------------------------
 # Construct default PostScript script
 # --------------------------------------------------------------------------------------------------
 
-def DefaultPostScript(files, start_page, title, author, bookmarks=True):
+def DefaultPostScript(
+        title = None,
+        author = None,
+        bookmarks = None,
+        pages = None,
+    ):
+    r'''
+Generate PostScript script.
+
+    :options:
+
+        **title** (``<str>``)
+            PDF title.
+
+        **author** (``<str>``)
+            PDF author.
+
+        **bookmarks** (``<list<str>>``)
+            List of bookmarks. Length must mage ``pages``.
+
+        **pages** (``<list<int>>``)
+            List of page-numbers. Length must mage ``bookmarks``.
+    '''
+
+    if type(bookmarks) == str:
+        bookmarks = [bookmarks]
+
+    if type(pages) == int:
+        pages = [pages]
 
     out = []
 
@@ -83,14 +97,12 @@ def DefaultPostScript(files, start_page, title, author, bookmarks=True):
     if author:
         out += ['/Author ({0:s})'.format(author)]
 
-    if type(bookmarks) == str:
-        bookmarks = [bookmarks]
-    if type(bookmarks) != list:
-        bookmarks = [i for i in files]
-
     if bookmarks:
-        for title, page in zip(bookmarks, start_page):
-            out += ['/Page {0:d} /Title ({1:s}) /OUT pdfmark'.format(page, title)]
+        for bookmark, page in zip(bookmarks, pages):
+            out += ['/Page {0:d} /Title ({1:s}) /OUT pdfmark'.format(page, bookmark)]
+
+    if len(out) == 0:
+        return ''
 
     return '[ ' + '\n[ '.join(out)
 
@@ -99,16 +111,17 @@ def DefaultPostScript(files, start_page, title, author, bookmarks=True):
 # --------------------------------------------------------------------------------------------------
 
 def combine(
-        files, # list of files
-        output, # name of output file (overwritten if exists)
-        openleft = False, # True/False
-        openright = False, # True/False
-        ps = True, # None/True -> generate automatically, str -> Use user input, False = switch off
-        add_ps = None, # str, to append generated PostScript script
-        bookmarks = True, # True -> use filename, list(str) -> specify per file
-        title = 'Binder', # title of output PDF
-        author = 'pdfcombine', # author of output PDF
-        verbose = False, # verbose
+        files,
+        output,
+        openleft = False,
+        openright = False,
+        meta = True,
+        ps = None,
+        add_ps = None,
+        bookmarks = True,
+        title = 'Binder',
+        author = 'pdfcombine',
+        verbose = False,
     ):
     r'''
 Combine PDFs
@@ -124,33 +137,49 @@ Combine PDFs
 :options:
 
         **openleft** ([``False``] | ``True``)
-            Make sure each 'chapter' begins on a left-page.
+            Make sure each 'document' begins on a left-page.
 
         **openright** ([``False``] | ``True``)
-            Make sure each 'chapter' begins on a left-page.
+            Make sure each 'document' begins on a left-page.
 
-        **ps** ([``True``] | ``False`` | ``<str>``)
-            If ``True``: generate a PostScript script with set title, author, and bookmarks.
-            If ``False``: no meta-data is written.
+        **meta** ([``True``] | ``False``)
+            Write meta-data using a PostScript script
+            (see below for options: 'ps', 'add_ps', 'bookmarks', 'title', 'author').
 
-        **add_ps**
-            None, # str, to append generated PostScript script
-        **print_ps**
-            False,
-        **bookmarks**
-            True, # True -> use filename, list(str) -> specify per file
-        **title**
-            'Binder', # title of output PDF
-        **author**
-            'pdfcombine', # author of output PDF
-        **verbose**
-            False, # verbose
+        **ps** (``<str>``)
+            If specified the automatically generated PostScript script is overwritten with
+            the specified script.
+
+        **add_ps** (``<str>``)
+            Append generated/specified PostScript script with the specified script.
+
+        **bookmarks** ([``True``] | ``False`` | ``<list<str>>``)
+            If ``True`` the filenames are used as bookmarks in the automatically generated
+            PostScript script. One can customise the bookmarks by specifying one label per file.
+
+        **title** (``<str>``)
+            Specify PDF title. Defaults to "Binder".
+
+        **author** (``<str>``)
+            Specify PDF author. Defaults to "pdfcombine".
+
+        **verbose** ([``False``] | ``True``)
+            Verbose all commands and their output.
     '''
 
     temp_dir = None
 
     if type(files) == str:
         files = [files]
+
+    if type(bookmarks) == str:
+        bookmarks = [bookmarks]
+
+    if bookmarks == True:
+        bookmarks = [file for file in files]
+
+    if not meta:
+        bookmarks = False
 
     # Basic checking
 
@@ -168,39 +197,40 @@ Combine PDFs
         if os.path.abspath(file) == os.path.abspath(output):
             raise IOError('"{0:s}" is also an input-file, choose a different output'.format(output))
 
-    # Read number of pages
+    # Read number of pages and derive basic information
 
     if openleft or openright or bookmarks:
+
         n_pages = NumberOfPages(files, verbose)
+
         is_even = [False if n % 2 != 0 else True for n in n_pages]
 
-    if openleft:
-        start_page = [2] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
-    elif openright:
-        start_page = [1] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
-    else:
-        start_page = [1] + [i for i in n_pages]
+    if bookmarks:
 
-    start_page = list(accumulate(start_page))
+        if openleft:
+            start_page = [2] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
+        elif openright:
+            start_page = [1] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
+        else:
+            start_page = [1] + [i for i in n_pages]
+
+        start_page = list(accumulate(start_page))
 
     # Store PostScript commands to set metadata in a temporary file
 
-    if ps != False:
+    if meta:
 
         temp_dir = tempfile.mkdtemp()
         temp_ps = os.path.join(temp_dir, 'pdfcombine.ps')
 
-        if ps == True or ps is None:
+        if type(ps) != str:
             ps = DefaultPostScript(
-              files = files,
-              start_page = start_page,
               title = title,
               author = author,
-              bookmarks = bookmarks)
-        elif type(ps) != str:
-            raise IOError('Unknown type "ps"')
+              bookmarks = bookmarks,
+              pages = start_page)
 
-        if add_ps:
+        if type(add_ps) == str:
             ps += '\n' + add_ps
 
         if verbose:
@@ -227,7 +257,7 @@ Combine PDFs
 
         cmd += ' -f "{0:s}"'.format(file)
 
-    if type(ps) == str:
+    if meta:
         cmd += ' ' + temp_ps
 
     Run(cmd, verbose)
@@ -240,5 +270,6 @@ Combine PDFs
     if verbose:
         print('\n---- cleaning up ----\n')
         print('rm -r {0:s}'.format(temp_dir))
+        print('')
 
     shutil.rmtree(temp_dir)

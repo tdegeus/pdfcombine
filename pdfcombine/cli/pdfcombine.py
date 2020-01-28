@@ -16,7 +16,7 @@
                 Switch-off bookmarks added for each 'document'.
 
             add-ps
-                Add Custom PostScript code.
+                Add custom PostScript code, to the automatically generated script.
 
     *   Manually specified:
 
@@ -26,7 +26,7 @@
     *   Suppressed:
 
             no-ps
-                Switch-off the use of a PostScript-script.
+                Switch-off the use of a PostScript script.
 
     To include custom bookmarks a YAML input file can be used, e.g.::
 
@@ -40,10 +40,12 @@
         title: Binder
         author: Tom de Geus
         output: binder.pdf
+        ...
 
-    As observed the "combine" field contains all input files (in the correct order)
-    optionally the bookmark titles. In addition, all options can be specified.
-    Note, these options overwrite command-line options. To use with automatic bookmarks::
+    As observed the "files" field contains all input files (in the correct order) and the
+    bookmark titles. Other field allowed any of the command-line options (long name without "--");
+    specifying them will overwrite the corresponding command-line option.
+    To use with automatic bookmarks::
 
         files:
             - 1.pdf
@@ -55,21 +57,21 @@ Usage:
     pdfcombine [options] <files>...
 
 Options:
-    -y, --yaml         Read input files (and settings) from a YAML-file.
-        --openleft     Enforce that each 'chapter' starts on an even page.
-        --openright    Enforce that each 'chapter' starts on an odd page.
-        --title=<N>    Set the title of the output PDF.
-        --author=<N>   Set the author of the output PDF.
-        --no-bookmarks Do not write
-        --add-ps=<N>   Add commands to the generated PostScript script.
-        --ps=<N>       Overwrite the automatically generated PostScript script.
-        --no-ps        Do not run any PostScript script (to edit meta-data).
-    -o, --output=<N>   Name of the output file. [default: binder.pdf]
-    -f, --force        Force overwrite of existing output.
-    -s, --silent       Do not print any progress.
-        --verbose      Verbose all commands.
-    -h, --help         Show help.
-        --version      Show version.
+    -y, --yaml              Read input files (and settings) from a YAML-file.
+        --openleft          Enforce that each 'chapter' starts on an even page.
+        --openright         Enforce that each 'chapter' starts on an odd page.
+        --title=<arg>       Set the title of the output PDF.
+        --author=<arg>      Set the author of the output PDF.
+        --no-bookmarks      Do not write
+        --add-ps=<arg>      Add commands to the generated PostScript script.
+        --ps=<arg>          Overwrite the automatically generated PostScript script.
+        --no-ps             Do not run any PostScript script (to edit meta-data).
+    -o, --output=<arg>      Name of the output file. [default: binder.pdf]
+    -f, --force             Force overwrite of existing output.
+    -s, --silent            Do not print any progress.
+        --verbose           Verbose all commands.
+    -h, --help              Show help.
+        --version           Show version.
 
 (c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
 '''
@@ -125,16 +127,12 @@ def main():
     openright = args['--openright']
     ps = args['--ps']
     add_ps = args['--add-ps']
+    meta = not args['--no-ps']
     bookmarks = not args['--no-bookmarks']
     title = args['--title']
     author = args['--author']
     verbose = args['--verbose']
     silent = args['--silent']
-
-    if args['--no-ps']:
-        ps = False
-    elif type(ps) != str:
-        ps = True
 
     if args['--yaml']:
 
@@ -180,7 +178,7 @@ def main():
 
         if 'no-ps' in info:
             if info['no-ps']:
-                ps = False
+                meta = False
 
     if os.path.isfile(output) and not args['--force']:
         if not click.confirm('Overwrite existing "{0:s}"?'.format(output)):
@@ -192,6 +190,7 @@ def main():
             output = output,
             openleft = openleft,
             openright = openright,
+            meta = meta,
             ps = ps,
             add_ps = add_ps,
             bookmarks = bookmarks,
