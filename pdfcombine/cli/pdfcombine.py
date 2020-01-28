@@ -45,13 +45,16 @@
     As observed the "files" field contains all input files (in the correct order) and the
     bookmark titles. Other field allowed any of the command-line options (long name without "--");
     specifying them will overwrite the corresponding command-line option.
-    To use with automatic bookmarks::
+    To use with automatic bookmarks, e.g.::
 
         files:
             - 1.pdf
             - 2.pdf
 
-        ...
+        openleft: True
+        title: Binder
+        author: Tom de Geus
+        output: binder.pdf
 
 Usage:
     pdfcombine [options] <files>...
