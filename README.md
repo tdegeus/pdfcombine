@@ -5,14 +5,20 @@
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pdfcombine.svg)](https://anaconda.org/conda-forge/pdfcombine)
 
 
-Simple command-line script that allows you to combine (concatenate) PDF-files.
+Simple module to combine (concatenate) PDF-files using GhostScript:
+
+## Command-line script 
 
 ```none
 pdfcombine [options] <files>...
 ```
 
-Note that the script is in fact a simple Python script that wraps GhostScript. 
-Also not that a simple Python module is also available to do the same thing.
+## Python module
+
+```python
+import pdfcombine
+pdfcombine.combine(...)
+```
 
 # Contents
 
@@ -20,15 +26,21 @@ Also not that a simple Python module is also available to do the same thing.
 
 - [Disclaimer](#disclaimer)
 - [Getting pdfcombine](#getting-pdfcombine)
-  - [Using conda](#using-conda)
-  - [Using PyPi](#using-pypi)
-  - [From source](#from-source)
+    - [Using conda](#using-conda)
+    - [Using PyPi](#using-pypi)
+    - [From source](#from-source)
 - [Usage](#usage)
-  - [Meta-data using PostScript](#meta-data-using-postscript)
-  - [YAML input file](#yaml-input-file)
+    - [Basic usage](#basic-usage)
+    - [Meta-data using PostScript](#meta-data-using-postscript)
+    - [Manipulate PostScript script from command-line](#manipulate-postscript-script-from-command-line)
+        - [Customise](#customise)
+        - [Manually specify](#manually-specify)
+        - [Suppress](#suppress)
+    - [Customise meta-data using YAML input file](#customise-meta-data-using-yaml-input-file)
 - [Usage from Python](#usage-from-python)
-  - [Arguments](#arguments)
-  - [Options](#options)
+    - [Basic usage](#basic-usage-1)
+    - [Arguments](#arguments)
+    - [Options](#options)
 
 <!-- /MarkdownTOC -->
 
@@ -48,7 +60,7 @@ Download: [.zip file](https://github.com/tdegeus/pdfcombine/zipball/master) | [.
 conda install -c conda-forge pdfcombine
 ```
 
-This will also install all necessary dependencies.
+This will install all necessary dependencies.
 
 ## Using PyPi
 
@@ -69,13 +81,15 @@ cd pdfcombine
 python -m pip install .
 ```
 
-This will also install the necessary Python modules, **but not GhostScript**.
+This will install the necessary Python modules, **but not GhostScript**.
 
 # Usage
 
+## Basic usage
+
 The usage is as follows (see `pdfcombine --help`):
 
-```bash
+```
 Usage:
     pdfcombine [options] <files>...
 
@@ -85,12 +99,12 @@ Options:
         --openright         Enforce that each 'chapter' starts on an odd page.
         --title=<arg>       Set the title of the output PDF.
         --author=<arg>      Set the author of the output PDF.
-        --no-bookmarks      Do not write
+        --no-bookmarks      Do include bookmarks to the first page of each document.
         --add-ps=<arg>      Add commands to the generated PostScript script.
         --ps=<arg>          Overwrite the automatically generated PostScript script.
         --no-ps             Do not run any PostScript script (to edit meta-data).
     -o, --output=<arg>      Name of the output file. [default: binder.pdf]
-    -f, --force             Force overwrite of existing output.
+    -f, --force             Force overwrite of existing output-file.
     -s, --silent            Do not print any progress.
         --verbose           Verbose all commands.
     -h, --help              Show help.
@@ -99,34 +113,42 @@ Options:
 
 ## Meta-data using PostScript
 
-By default a PostScript script is used to set the meta-data of the output PDF-file.
-This default PostScript script can be:
+By default a PostScript script is used to set the meta-data of the output PDF-file. 
+In particular, the output PDF gets a table of contents with bookmarks to the first page of each input 'document' and the input filename at title. To customise these titles and add meta-data use a [YAML input file](#yaml-input-file) and/or [customise](#customise-postscript-script) the default PostScript script.
 
-+   Customised:
+## Manipulate PostScript script from command-line
 
-    `--title`
-        Set title of the output PDF.
+### Customise
 
-    `--author`
-        Set the author of the output PDF.
+`--title`
+    
+Set title of the output PDF.
 
-    `--no-bookmarks`
-        Switch-off bookmarks added for each 'document'.
+`--author`
+    
+Set the author of the output PDF.
 
-    `--add-ps`
-        Add custom PostScript code, to the automatically generated script.
+`--no-bookmarks`
+    
+Switch-off bookmarks added for each 'document'.
 
-+   Manually specified:
+`--add-ps`
+    
+Add lines of PostScript code to the automatically generated script.
 
-    `--ps`
-        Set PostScript script (overwrites automatically generated script).
+### Manually specify
 
-+   Suppressed:
+`--ps`
+    
+Set PostScript script (overwrites automatically generated script).
 
-    `--no-ps`
-        Switch-off the use of a PostScript script.
+### Suppress
 
-## YAML input file
+`--no-ps`
+    
+Switch-off the use of a PostScript script.
+
+## Customise meta-data using YAML input file
 
 To include custom bookmarks a YAML input file can be used, e.g.:
 
@@ -143,10 +165,18 @@ author: Tom de Geus
 output: binder.pdf
 ```
 
+>   Use:
+>   
+>       pdfcombine -y input.yaml
+>       
+>   All PDFs have the specified in the YAML file: 
+>   no additional PDFs can be adding from the command-line.
+
 As observed the `files` field contains all input files (in the correct order) and the
-bookmark titles. Other field allowed any of the command-line options (long name without `--``);
-specifying them will overwrite the corresponding command-line option.
-To use with automatic bookmarks, e.g.:
+bookmark titles. 
+In addition, any of the command-line options (long name without `--`) can be included. 
+Note that specifying them will overwrite the corresponding command-line option.
+To use with automatic bookmarks (i.e. filenames), the above input file can be shortened to:
 
 ```yaml
 files:
@@ -161,7 +191,7 @@ output: binder.pdf
 
 # Usage from Python
 
-From Python one can use:
+## Basic usage
 
 ```python
 import pdfcombine
@@ -186,7 +216,7 @@ pdfcombine.combine(...)
 
 +   `openright` (**`False`** | `True`)
     
-    Make sure each 'document' begins on a left-page.
+    Make sure each 'document' begins on a right-page.
 
 +   `meta` (**`True`** | `False`)
     
@@ -205,7 +235,8 @@ pdfcombine.combine(...)
 +   `bookmarks` (**`True`** | `False` | `<list<str>>`)
     
     If `True` the filenames are used as bookmarks in the automatically generated
-    PostScript script. One can customise the bookmarks by specifying one label per file.
+    PostScript script. One can customise the bookmarks by specifying a list with 
+    one label per file.
 
 +   `title` (`<str>`)
     

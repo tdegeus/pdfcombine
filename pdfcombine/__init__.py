@@ -11,7 +11,7 @@ __version__ = '1.1.0'
 # Run command (and verbose it), and return the command's output
 # --------------------------------------------------------------------------------------------------
 
-def Run(cmd, verbose=False):
+def run(cmd, verbose=False):
     r'''
 Run command, optionally verbose command and output, and return output.
     '''
@@ -28,7 +28,7 @@ Run command, optionally verbose command and output, and return output.
 # Read number of pages of each document
 # --------------------------------------------------------------------------------------------------
 
-def NumberOfPages(files, verbose=False):
+def number_of_pages(files, verbose=False):
     r'''
 Read the number of pages of a (list of) PDF(s), using GhostScript.
 The output is a (list of) integers.
@@ -47,7 +47,7 @@ The output is a (list of) integers.
 
     for file in files:
         cmd = 'gs -q -dNODISPLAY -c "({0:s}) (r) file runpdfbegin pdfpagecount = quit"'.format(file)
-        out = Run(cmd, verbose)
+        out = run(cmd, verbose)
         n_pages += [int(out)]
 
     if return_int:
@@ -56,10 +56,10 @@ The output is a (list of) integers.
     return n_pages
 
 # --------------------------------------------------------------------------------------------------
-# Construct default PostScript script
+# Construct a simple PostScript script
 # --------------------------------------------------------------------------------------------------
 
-def DefaultPostScript(
+def generate_postscript(
         title = None,
         author = None,
         bookmarks = None,
@@ -68,19 +68,19 @@ def DefaultPostScript(
     r'''
 Generate PostScript script.
 
-    :options:
+:options:
 
-        **title** (``<str>``)
-            PDF title.
+    **title** (``<str>``)
+        PDF title.
 
-        **author** (``<str>``)
-            PDF author.
+    **author** (``<str>``)
+        PDF author.
 
-        **bookmarks** (``<list<str>>``)
-            List of bookmarks. Length must mage ``pages``.
+    **bookmarks** (``<list<str>>``)
+        List of bookmarks. Length must mage ``pages``.
 
-        **pages** (``<list<int>>``)
-            List of page-numbers. Length must mage ``bookmarks``.
+    **pages** (``<list<int>>``)
+        List of page-numbers. Length must mage ``bookmarks``.
     '''
 
     if type(bookmarks) == str:
@@ -128,43 +128,44 @@ Combine PDFs
 
 :arguments:
 
-        **files** (``<str>`` | ``<list<str>>``)
-            List of PDF files to combine.
+    **files** (``<str>`` | ``<list<str>>``)
+        List of PDF files to combine.
 
-        **output** (``<str>``)
-            Name of output file (overwritten if exists).
+    **output** (``<str>``)
+        Name of output file (overwritten if exists).
 
 :options:
 
-        **openleft** ([``False``] | ``True``)
-            Make sure each 'document' begins on a left-page.
+    **openleft** ([``False``] | ``True``)
+        Make sure each 'document' begins on a left-page.
 
-        **openright** ([``False``] | ``True``)
-            Make sure each 'document' begins on a left-page.
+    **openright** ([``False``] | ``True``)
+        Make sure each 'document' begins on a right-page.
 
-        **meta** ([``True``] | ``False``)
-            Write meta-data using a PostScript script
-            (see below for options: 'ps', 'add_ps', 'bookmarks', 'title', 'author').
+    **meta** ([``True``] | ``False``)
+        Write meta-data using a PostScript script
+        (see below for options: 'ps', 'add_ps', 'bookmarks', 'title', 'author').
 
-        **ps** (``<str>``)
-            If specified the automatically generated PostScript script is overwritten with
-            the specified script.
+    **ps** (``<str>``)
+        If specified the automatically generated PostScript script is overwritten with
+        the specified script.
 
-        **add_ps** (``<str>``)
-            Append generated/specified PostScript script with the specified script.
+    **add_ps** (``<str>``)
+        Append generated/specified PostScript script with the specified script.
 
-        **bookmarks** ([``True``] | ``False`` | ``<list<str>>``)
-            If ``True`` the filenames are used as bookmarks in the automatically generated
-            PostScript script. One can customise the bookmarks by specifying one label per file.
+    **bookmarks** ([``True``] | ``False`` | ``<list<str>>``)
+        If ``True`` the filenames are used as bookmarks in the automatically generated
+        PostScript script. One can customise the bookmarks by specifying a list with
+        one label per file.
 
-        **title** (``<str>``)
-            Specify PDF title. Defaults to "Binder".
+    **title** (``<str>``)
+        Specify PDF title. Defaults to "Binder".
 
-        **author** (``<str>``)
-            Specify PDF author. Defaults to "pdfcombine".
+    **author** (``<str>``)
+        Specify PDF author. Defaults to "pdfcombine".
 
-        **verbose** ([``False``] | ``True``)
-            Verbose all commands and their output.
+    **verbose** ([``False``] | ``True``)
+        Verbose all commands and their output.
     '''
 
     temp_dir = None
@@ -201,7 +202,7 @@ Combine PDFs
 
     if openleft or openright or bookmarks:
 
-        n_pages = NumberOfPages(files, verbose)
+        n_pages = number_of_pages(files, verbose)
 
         is_even = [False if n % 2 != 0 else True for n in n_pages]
 
@@ -216,7 +217,7 @@ Combine PDFs
 
         start_page = list(accumulate(start_page))
 
-    # Store PostScript commands to set metadata in a temporary file
+    # PostScript script to set metadata -> write to temporary file
 
     if meta:
 
@@ -224,7 +225,7 @@ Combine PDFs
         temp_ps = os.path.join(temp_dir, 'pdfcombine.ps')
 
         if type(ps) != str:
-            ps = DefaultPostScript(
+            ps = generate_postscript(
               title = title,
               author = author,
               bookmarks = bookmarks,
@@ -260,9 +261,9 @@ Combine PDFs
     if meta:
         cmd += ' ' + temp_ps
 
-    Run(cmd, verbose)
+    run(cmd, verbose)
 
-    # Clean-up remove temporary file and directory
+    # Clean-up: remove temporary directory (including its contents)
 
     if temp_dir is None:
         return

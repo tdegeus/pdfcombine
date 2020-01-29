@@ -2,9 +2,14 @@
     Combine several PDFs to a single PDF.
 
     By default a PostScript script is used to set the meta-data of the output PDF-file.
-    This default PostScript script can be:
+    In particular, the output PDF gets a table of contents with bookmarks to the first page
+    of each input 'document' and the input filename at title.
+    To customise these titles and add meta-data use a YAML input file and/or
+    customise the default PostScript script.
 
-    *   Customised:
+    Manipulate PostScript script:
+
+    *   Customise:
 
             title
                 Set title of the output PDF.
@@ -16,14 +21,14 @@
                 Switch-off bookmarks added for each 'document'.
 
             add-ps
-                Add custom PostScript code, to the automatically generated script.
+                Add lines of PostScript code to the automatically generated script.
 
-    *   Manually specified:
+    *   Manually specify:
 
             ps
                 Set PostScript script (overwrites automatically generated script).
 
-    *   Suppressed:
+    *   Suppress:
 
             no-ps
                 Switch-off the use of a PostScript script.
@@ -42,10 +47,11 @@
         output: binder.pdf
         ...
 
-    As observed the "files" field contains all input files (in the correct order) and the
-    bookmark titles. Other field allowed any of the command-line options (long name without "--");
-    specifying them will overwrite the corresponding command-line option.
-    To use with automatic bookmarks, e.g.::
+    As observed the `files` field contains all input files (in the correct order) and the
+    bookmark titles. In addition, any of the command-line options (long name without `--`)
+    can be included. Note that specifying them will overwrite the corresponding
+    command-line option. To use with automatic bookmarks (i.e. filenames),
+    the above input file can be shortened to::
 
         files:
             - 1.pdf
@@ -65,18 +71,18 @@ Options:
         --openright         Enforce that each 'chapter' starts on an odd page.
         --title=<arg>       Set the title of the output PDF.
         --author=<arg>      Set the author of the output PDF.
-        --no-bookmarks      Do not write
+        --no-bookmarks      Do include bookmarks to the first page of each document.
         --add-ps=<arg>      Add commands to the generated PostScript script.
         --ps=<arg>          Overwrite the automatically generated PostScript script.
         --no-ps             Do not run any PostScript script (to edit meta-data).
     -o, --output=<arg>      Name of the output file. [default: binder.pdf]
-    -f, --force             Force overwrite of existing output.
+    -f, --force             Force overwrite of existing output-file.
     -s, --silent            Do not print any progress.
         --verbose           Verbose all commands.
     -h, --help              Show help.
         --version           Show version.
 
-(c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me
+(c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me | github.com/tdegeus/pdfcombine
 '''
 
 # --------------------------------------------------------------------------------------------------
@@ -107,7 +113,7 @@ def read_yaml(files):
     import yaml
 
     if len(files) != 1:
-        error('All files need to be specified in the YAML input')
+        error('All input PDFs need to be specified in the YAML input')
 
     filename = files[0]
 
