@@ -65,6 +65,7 @@ install:
   - conda install -c conda-forge pip
   - conda install -c conda-forge docopt
   - conda install -c conda-forge click
+  - conda install -c conda-forge pyyaml
   - conda install -c conda-forge ghostscript
   - conda install -c conda-forge matplotlib
   - python -m pip install .
@@ -72,3 +73,4 @@ install:
 
 script:
   - pdfcombine fig1.pdf fig2.pdf fig3.pdf
+  - pdfcombine -f -y test/combine.yaml
