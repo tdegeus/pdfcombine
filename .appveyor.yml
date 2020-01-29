@@ -43,3 +43,4 @@ install:
 build_script:
   - pdfcombine --version
   - pdfcombine fig1.pdf fig2.pdf fig3.pdf
+  - pdfcombine -f -y test/combine.yaml
