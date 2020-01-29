@@ -68,7 +68,7 @@ This will install all necessary dependencies.
 pip install pdfcombine
 ```
 
-This will also install the necessary Python modules, **but not GhostScript**.
+This will install the necessary Python modules, **but not GhostScript**.
 
 ## From source
 
