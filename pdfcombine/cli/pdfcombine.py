@@ -149,7 +149,7 @@ def main():
 
         if 'files' in info:
             if len(info['files']) > 0:
-                if type(info['files'][0] == dict):
+                if type(info['files'][0]) == dict:
                     files = [i['file'] for i in info['files']]
                     bookmarks = [i['title'] for i in info['files']]
                 else:

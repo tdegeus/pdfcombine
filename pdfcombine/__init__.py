@@ -5,7 +5,7 @@ import shutil
 import tempfile
 from itertools import accumulate
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 # --------------------------------------------------------------------------------------------------
 # Run command (and verbose it), and return the command's output
