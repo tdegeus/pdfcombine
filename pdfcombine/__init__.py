@@ -5,11 +5,8 @@ import shutil
 import tempfile
 from itertools import accumulate
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
-# --------------------------------------------------------------------------------------------------
-# Run command (and verbose it), and return the command's output
-# --------------------------------------------------------------------------------------------------
 
 def run(cmd, verbose=False):
     r'''
@@ -24,9 +21,6 @@ Run command, optionally verbose command and output, and return output.
 
     return out
 
-# --------------------------------------------------------------------------------------------------
-# Read number of pages of each document
-# --------------------------------------------------------------------------------------------------
 
 def number_of_pages(files, verbose=False):
     r'''
@@ -55,16 +49,13 @@ The output is a (list of) integers.
 
     return n_pages
 
-# --------------------------------------------------------------------------------------------------
-# Construct a simple PostScript script
-# --------------------------------------------------------------------------------------------------
 
 def generate_postscript(
-        title = None,
-        author = None,
-        bookmarks = None,
-        pages = None,
-    ):
+        title=None,
+        author=None,
+        bookmarks=None,
+        pages=None,
+):
     r'''
 Generate PostScript script.
 
@@ -106,23 +97,20 @@ Generate PostScript script.
 
     return '[ ' + '\n[ '.join(out)
 
-# --------------------------------------------------------------------------------------------------
-# Combine PDFs
-# --------------------------------------------------------------------------------------------------
 
 def combine(
         files,
         output,
-        openleft = False,
-        openright = False,
-        meta = True,
-        ps = None,
-        add_ps = None,
-        bookmarks = True,
-        title = 'Binder',
-        author = 'pdfcombine',
-        verbose = False,
-    ):
+        openleft=False,
+        openright=False,
+        meta=True,
+        ps=None,
+        add_ps=None,
+        bookmarks=True,
+        title='Binder',
+        author='pdfcombine',
+        verbose=False,
+):
     r'''
 Combine PDFs
 
@@ -226,10 +214,10 @@ Combine PDFs
 
         if type(ps) != str:
             ps = generate_postscript(
-              title = title,
-              author = author,
-              bookmarks = bookmarks,
-              pages = start_page)
+                title=title,
+                author=author,
+                bookmarks=bookmarks,
+                pages=start_page)
 
         if type(add_ps) == str:
             ps += '\n' + add_ps
