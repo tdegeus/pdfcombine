@@ -85,8 +85,6 @@ Options:
 (c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me | github.com/tdegeus/pdfcombine
 '''
 
-# --------------------------------------------------------------------------------------------------
-
 import docopt
 import click
 import os
@@ -95,20 +93,20 @@ import sys
 from .. import __version__
 from .. import combine
 
-# --------------------------------------------------------------------------------------------------
-# Command-line error: show message and quit with exit code "1"
-# --------------------------------------------------------------------------------------------------
 
 def error(text):
+    r'''
+Command-line error: show message and quit with exit code "1"
+    '''
 
     print(text)
     sys.exit(1)
 
-# --------------------------------------------------------------------------------------------------
-# read YAML file
-# --------------------------------------------------------------------------------------------------
 
 def read_yaml(files):
+    r'''
+Read YAML file.
+    '''
 
     import yaml
 
@@ -122,11 +120,11 @@ def read_yaml(files):
 
     return yaml.load(open(filename, 'r').read(), Loader=yaml.FullLoader)
 
-# --------------------------------------------------------------------------------------------------
-# main program
-# --------------------------------------------------------------------------------------------------
 
 def main():
+    r'''
+Main program.
+    '''
 
     args = docopt.docopt(__doc__, version=__version__)
 
@@ -195,17 +193,17 @@ def main():
 
     try:
         combine(
-            files = files,
-            output = output,
-            openleft = openleft,
-            openright = openright,
-            meta = meta,
-            ps = ps,
-            add_ps = add_ps,
-            bookmarks = bookmarks,
-            title = title,
-            author = author,
-            verbose = verbose)
+            files=files,
+            output=output,
+            openleft=openleft,
+            openright=openright,
+            meta=meta,
+            ps=ps,
+            add_ps=add_ps,
+            bookmarks=bookmarks,
+            title=title,
+            author=author,
+            verbose=verbose)
     except Exception as e:
         print(str(e))
         sys.exit(1)
@@ -213,9 +211,6 @@ def main():
     if not silent:
         print('[pdfcombine] {0:s}'.format(output))
 
-# --------------------------------------------------------------------------------------------------
-# command-line call
-# --------------------------------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
