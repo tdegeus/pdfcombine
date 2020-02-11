@@ -165,12 +165,12 @@ author: Tom de Geus
 output: binder.pdf
 ```
 
->   Use:
+>   Run *pdfcombine* as follows:
 >   
 >       pdfcombine -y input.yaml
 >       
 >   All PDFs have the specified in the YAML file: 
->   no additional PDFs can be adding from the command-line.
+>   no additional PDFs can be added from the command-line.
 
 As observed the `files` field contains all input files (in the correct order) and the
 bookmark titles. 
