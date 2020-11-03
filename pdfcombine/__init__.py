@@ -5,7 +5,7 @@ import shutil
 import tempfile
 from itertools import accumulate
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 def run(cmd, verbose=False):
@@ -13,10 +13,12 @@ def run(cmd, verbose=False):
 Run command, optionally verbose command and output, and return output.
     '''
 
+    if verbose:
+        print(cmd)
+
     out = subprocess.check_output(cmd, shell=True).decode('utf-8')
 
     if verbose:
-        print(cmd)
         print(out)
 
     return out
