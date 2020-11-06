@@ -42,7 +42,7 @@ The output is a (list of) integers.
     n_pages = []
 
     for file in files:
-        cmd = 'gs -q -dNODISPLAY -c "({0:s}) (r) file runpdfbegin pdfpagecount = quit"'.format(file)
+        cmd = 'gs -q -dNOSAFER -dNODISPLAY -c "({0:s}) (r) file runpdfbegin pdfpagecount = quit"'.format(file)
         out = run(cmd, verbose)
         n_pages += [int(out)]
 
@@ -235,7 +235,7 @@ Combine PDFs
     if verbose:
         print('\n---- combining files ----\n')
 
-    cmd = 'gs -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{0:s}"'.format(output)
+    cmd = 'gs -dNOSAFER -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{0:s}"'.format(output)
 
     if openleft:
         cmd += ' -c showpage'
