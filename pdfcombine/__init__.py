@@ -101,61 +101,32 @@ Generate PostScript script.
 
 
 def combine(
-        files,
-        output,
-        openleft=False,
-        openright=False,
-        meta=True,
-        ps=None,
-        add_ps=None,
-        bookmarks=True,
-        title='Binder',
-        author='pdfcombine',
-        verbose=False,
+        files: str | list[str],
+        output: str,
+        openleft:bool=False,
+        openright:bool=False,
+        meta:bool=True,
+        ps:str=None,
+        add_ps:str=None,
+        bookmarks:bool | list[str]=True,
+        title:str='Binder',
+        author:str='pdfcombine',
+        verbose:bool=False,
 ):
-    r'''
+    '''
 Combine PDFs
 
-:arguments:
-
-    **files** (``<str>`` | ``<list<str>>``)
-        List of PDF files to combine.
-
-    **output** (``<str>``)
-        Name of output file (overwritten if exists).
-
-:options:
-
-    **openleft** ([``False``] | ``True``)
-        Make sure each 'document' begins on a left-page.
-
-    **openright** ([``False``] | ``True``)
-        Make sure each 'document' begins on a right-page.
-
-    **meta** ([``True``] | ``False``)
-        Write meta-data using a PostScript script
-        (see below for options: 'ps', 'add_ps', 'bookmarks', 'title', 'author').
-
-    **ps** (``<str>``)
-        If specified the automatically generated PostScript script is overwritten with
-        the specified script.
-
-    **add_ps** (``<str>``)
-        Append generated/specified PostScript script with the specified script.
-
-    **bookmarks** ([``True``] | ``False`` | ``<list<str>>``)
-        If ``True`` the filenames are used as bookmarks in the automatically generated
-        PostScript script. One can customise the bookmarks by specifying a list with
-        one label per file.
-
-    **title** (``<str>``)
-        Specify PDF title. Defaults to "Binder".
-
-    **author** (``<str>``)
-        Specify PDF author. Defaults to "pdfcombine".
-
-    **verbose** ([``False``] | ``True``)
-        Verbose all commands and their output.
+:param files: List of PDF files to combine.
+:param output: Name of output file (overwritten if exists).
+:param openleft: Start each file on a left-page.
+:param openright: Start each file on a right-page.
+:param meta: Write meta-data using a PostScript script.
+:param ps: Overwrite automatically generated PostScript script.
+:param add_ps: Append generated/specified PostScript script.
+:param bookmarks: If ``True`` the filenames are the bookmarks. Otherwise specify name per file.
+:param title: PDF title.
+:param author: PDF author.
+:param verbose: Verbose all commands and their output.
     '''
 
     temp_dir = None
