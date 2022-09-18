@@ -1,4 +1,4 @@
-'''pdfcombine
+"""pdfcombine
     Combine several PDFs to a single PDF.
 
     By default a PostScript script is used to set the meta-data of the output PDF-file.
@@ -83,112 +83,112 @@ Options:
         --version           Show version.
 
 (c - MIT) T.W.J. de Geus | tom@geus.me | www.geus.me | github.com/tdegeus/pdfcombine
-'''
-
-import docopt
-import click
+"""
 import os
 import sys
+
+import click
+import docopt
 
 from .. import __version__
 from .. import combine
 
 
 def error(text):
-    r'''
-Command-line error: show message and quit with exit code "1"
-    '''
+    r"""
+    Command-line error: show message and quit with exit code "1"
+    """
 
     print(text)
     sys.exit(1)
 
 
 def read_yaml(files):
-    r'''
-Read YAML file.
-    '''
+    r"""
+    Read YAML file.
+    """
 
     import yaml
 
     if len(files) != 1:
-        error('All input PDFs need to be specified in the YAML input')
+        error("All input PDFs need to be specified in the YAML input")
 
     filename = files[0]
 
     if not os.path.isfile(filename):
-        error('"{0:s} does not exist'.format(filename))
+        error(f'"{filename:s} does not exist')
 
-    return yaml.load(open(filename, 'r').read(), Loader=yaml.FullLoader)
+    return yaml.load(open(filename).read(), Loader=yaml.FullLoader)
 
 
 def main():
-    r'''
-Main program.
-    '''
+    r"""
+    Main program.
+    """
 
     args = docopt.docopt(__doc__, version=__version__)
 
-    files = args['<files>']
-    output = args['--output']
-    openleft = args['--openleft']
-    openright = args['--openright']
-    ps = args['--ps']
-    add_ps = args['--add-ps']
-    meta = not args['--no-ps']
-    bookmarks = not args['--no-bookmarks']
-    title = args['--title']
-    author = args['--author']
-    verbose = args['--verbose']
-    silent = args['--silent']
+    files = args["<files>"]
+    output = args["--output"]
+    openleft = args["--openleft"]
+    openright = args["--openright"]
+    ps = args["--ps"]
+    add_ps = args["--add-ps"]
+    meta = not args["--no-ps"]
+    bookmarks = not args["--no-bookmarks"]
+    title = args["--title"]
+    author = args["--author"]
+    verbose = args["--verbose"]
+    silent = args["--silent"]
 
-    if args['--yaml']:
+    if args["--yaml"]:
 
         info = read_yaml(files)
 
-        if 'files' in info:
-            if len(info['files']) > 0:
-                if type(info['files'][0]) == dict:
-                    files = [i['file'] for i in info['files']]
-                    bookmarks = [i['title'] for i in info['files']]
+        if "files" in info:
+            if len(info["files"]) > 0:
+                if type(info["files"][0]) == dict:
+                    files = [i["file"] for i in info["files"]]
+                    bookmarks = [i["title"] for i in info["files"]]
                 else:
-                    files = [i for i in info['files']]
+                    files = [i for i in info["files"]]
 
-        if 'output' in info:
-            output = info['output']
+        if "output" in info:
+            output = info["output"]
 
-        if 'openleft' in info:
-            openleft = info['openleft']
+        if "openleft" in info:
+            openleft = info["openleft"]
 
-        if 'openright' in info:
-            openright = info['openright']
+        if "openright" in info:
+            openright = info["openright"]
 
-        if 'ps' in info:
-            ps = info['ps']
+        if "ps" in info:
+            ps = info["ps"]
 
-        if 'add-ps' in info:
-            add_ps = info['add-ps']
+        if "add-ps" in info:
+            add_ps = info["add-ps"]
 
-        if 'bookmarks' in info:
-            bookmarks = info['bookmarks']
+        if "bookmarks" in info:
+            bookmarks = info["bookmarks"]
 
-        if 'title' in info:
-            title = info['title']
+        if "title" in info:
+            title = info["title"]
 
-        if 'author' in info:
-            author = info['author']
+        if "author" in info:
+            author = info["author"]
 
-        if 'verbose' in info:
-            verbose = info['verbose']
+        if "verbose" in info:
+            verbose = info["verbose"]
 
-        if 'silent' in info:
-            silent = info['silent']
+        if "silent" in info:
+            silent = info["silent"]
 
-        if 'no-ps' in info:
-            if info['no-ps']:
+        if "no-ps" in info:
+            if info["no-ps"]:
                 meta = False
 
-    if os.path.isfile(output) and not args['--force']:
-        if not click.confirm('Overwrite existing "{0:s}"?'.format(output)):
+    if os.path.isfile(output) and not args["--force"]:
+        if not click.confirm(f'Overwrite existing "{output:s}"?'):
             sys.exit(1)
 
     try:
@@ -203,15 +203,16 @@ Main program.
             bookmarks=bookmarks,
             title=title,
             author=author,
-            verbose=verbose)
+            verbose=verbose,
+        )
     except Exception as e:
         print(str(e))
         sys.exit(1)
 
     if not silent:
-        print('[pdfcombine] {0:s}'.format(output))
+        print(f"[pdfcombine] {output:s}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()

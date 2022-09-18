@@ -7,7 +7,7 @@
 
 Simple module to combine (concatenate) PDF-files using GhostScript:
 
-## Command-line script 
+## Command-line script
 
 ```none
 pdfcombine [options] <files>...
@@ -113,7 +113,7 @@ Options:
 
 ## Meta-data using PostScript
 
-By default a PostScript script is used to set the meta-data of the output PDF-file. 
+By default a PostScript script is used to set the meta-data of the output PDF-file.
 In particular, the output PDF gets a table of contents with bookmarks to the first page of each input 'document' and the input filename at title. To customise these titles and add meta-data use a [YAML input file](#yaml-input-file) and/or [customise](#customise-postscript-script) the default PostScript script.
 
 ## Manipulate PostScript script from command-line
@@ -121,31 +121,31 @@ In particular, the output PDF gets a table of contents with bookmarks to the fir
 ### Customise
 
 `--title`
-    
+
 Set title of the output PDF.
 
 `--author`
-    
+
 Set the author of the output PDF.
 
 `--no-bookmarks`
-    
+
 Switch-off bookmarks added for each 'document'.
 
 `--add-ps`
-    
+
 Add lines of PostScript code to the automatically generated script.
 
 ### Manually specify
 
 `--ps`
-    
+
 Set PostScript script (overwrites automatically generated script).
 
 ### Suppress
 
 `--no-ps`
-    
+
 Switch-off the use of a PostScript script.
 
 ## Customise meta-data using YAML input file
@@ -166,15 +166,15 @@ output: binder.pdf
 ```
 
 >   Run *pdfcombine* as follows:
->   
+>
 >       pdfcombine -y input.yaml
->       
->   All PDFs have the specified in the YAML file: 
+>
+>   All PDFs have the specified in the YAML file:
 >   no additional PDFs can be added from the command-line.
 
 As observed the `files` field contains all input files (in the correct order) and the
-bookmark titles. 
-In addition, any of the command-line options (long name without `--`) can be included. 
+bookmark titles.
+In addition, any of the command-line options (long name without `--`) can be included.
 Note that specifying them will overwrite the corresponding command-line option.
 To use with automatic bookmarks (i.e. filenames), the above input file can be shortened to:
 
@@ -201,51 +201,51 @@ pdfcombine.combine(...)
 ## Arguments
 
 +   `files` (`<str>` | `<list<str>>`)
-    
+
     List of PDF files to combine.
 
 +   `output` (`<str>`)
-    
+
     Name of output file (overwritten if exists).
 
 ## Options
 
 +   `openleft` (**`False`** | `True`)
-    
+
     Make sure each 'document' begins on a left-page.
 
 +   `openright` (**`False`** | `True`)
-    
+
     Make sure each 'document' begins on a right-page.
 
 +   `meta` (**`True`** | `False`)
-    
+
     Write meta-data using a PostScript script
     (see below for options: `ps`, `add_ps`, `bookmarks`, `title`, `author`).
 
 +   `ps` (`<str>`)
-    
+
     If specified the automatically generated PostScript script is overwritten with
     the specified script.
 
 +   `add_ps` (`<str>`)
-    
+
     Append generated/specified PostScript script with the specified script.
 
 +   `bookmarks` (**`True`** | `False` | `<list<str>>`)
-    
+
     If `True` the filenames are used as bookmarks in the automatically generated
-    PostScript script. One can customise the bookmarks by specifying a list with 
+    PostScript script. One can customise the bookmarks by specifying a list with
     one label per file.
 
 +   `title` (`<str>`)
-    
+
     Specify PDF title. Defaults to "Binder".
 
 +   `author` (`<str>`)
-    
+
     Specify PDF author. Defaults to "pdfcombine".
 
 +   `verbose` (**`False`** | `True`)
-    
+
     Verbose all commands and their output.
