@@ -6,6 +6,7 @@ from itertools import accumulate
 
 from ._version import version  # noqa: F401
 
+
 def run(cmd: str, verbose: bool = False):
     """
     Run command and return output.
@@ -52,27 +53,18 @@ def number_of_pages(files: list[str], verbose: bool = False) -> list[int]:
 
 
 def generate_postscript(
-    title=None,
-    author=None,
-    bookmarks=None,
-    pages=None,
+    title: str = None,
+    author: str = None,
+    bookmarks: list[str] = None,
+    pages: list[int] = None,
 ):
     """
     Generate PostScript script.
 
-    :options:
-
-        **title** (``<str>``)
-            PDF title.
-
-        **author** (``<str>``)
-            PDF author.
-
-        **bookmarks** (``<list<str>>``)
-            List of bookmarks. Length must mage ``pages``.
-
-        **pages** (``<list<int>>``)
-            List of page-numbers. Length must mage ``bookmarks``.
+    :param title: PDF title.
+    :param author: PDF author.
+    :param bookmarks: List of bookmarks. Length must mage ``pages``.
+    :param pages: List of page-numbers. Length must mage ``bookmarks``.
     """
 
     if type(bookmarks) == str:

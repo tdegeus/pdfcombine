@@ -90,8 +90,8 @@ import sys
 import click
 import docopt
 
-from .. import version
 from .. import combine
+from .. import version
 
 
 def error(text):
