@@ -1,9 +1,9 @@
 # pdfcombine
 
-[![Travis](https://travis-ci.org/tdegeus/pdfcombine.svg?branch=master)](https://travis-ci.org/tdegeus/pdfcombine)
-[![Build status](https://ci.appveyor.com/api/projects/status/d0v6sudee1m7iuvh?svg=true)](https://ci.appveyor.com/project/tdegeus/pdfcombine)
+[![CI](https://github.com/tdegeus/pdfcombine/workflows/CI/badge.svg)](https://github.com/tdegeus/pdfcombine/actions)
+[![Documentation Status](https://readthedocs.org/projects/pdfcombine/badge/?version=latest)](https://pdfcombine.readthedocs.io/en/latest/?badge=latest)
 [![Conda Version](https://img.shields.io/conda/vn/conda-forge/pdfcombine.svg)](https://anaconda.org/conda-forge/pdfcombine)
-
+[![PyPi release](https://img.shields.io/pypi/v/pdfcombine.svg)](https://pypi.org/project/pdfcombine/)
 
 Simple module to combine (concatenate) PDF-files using GhostScript:
 
