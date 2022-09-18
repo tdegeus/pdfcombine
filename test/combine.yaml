@@ -1,11 +1,11 @@
 files:
-  - file: fig1.pdf
-    title: Figure 1
-  - file: fig2.pdf
-    title: Figure 2
-  - file: fig3.pdf
-    title: Figure 3
+- file: fig1.pdf
+  title: Figure 1
+- file: fig2.pdf
+  title: Figure 2
+- file: fig3.pdf
+  title: Figure 3
 
-openright: True
+openright: true
 title: Figure binder
 author: Tom de Geus

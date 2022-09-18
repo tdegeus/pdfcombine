@@ -1,22 +1,22 @@
-
 import os
-import subprocess
 import shutil
+import subprocess
 import tempfile
 from itertools import accumulate
 
-__version__ = '1.1.4'
+__version__ = "1.1.4"
 
 
-def run(cmd, verbose=False):
-    r'''
-Run command, optionally verbose command and output, and return output.
-    '''
+def run(cmd: str, verbose: bool = False):
+    """
+    Run command and return output.
+    :param verbose: Print command and output.
+    """
 
     if verbose:
         print(cmd)
 
-    out = subprocess.check_output(cmd, shell=True).decode('utf-8')
+    out = subprocess.check_output(cmd, shell=True).decode("utf-8")
 
     if verbose:
         print(out)
@@ -24,11 +24,11 @@ Run command, optionally verbose command and output, and return output.
     return out
 
 
-def number_of_pages(files, verbose=False):
-    r'''
-Read the number of pages of a (list of) PDF(s), using GhostScript.
-The output is a (list of) integers.
-    '''
+def number_of_pages(files: list[str], verbose: bool = False) -> list[int]:
+    """
+    Read the number of pages of a (list of) PDF(s), using GhostScript.
+    :param verbose: Verbose operation.
+    """
 
     return_int = False
 
@@ -37,12 +37,12 @@ The output is a (list of) integers.
         return_int = True
 
     if verbose:
-        print('\n---- reading number of pages per file ----\n')
+        print("\n---- reading number of pages per file ----\n")
 
     n_pages = []
 
-    for file in files:
-        cmd = 'gs -q -dNOSAFER -dNODISPLAY -c "({0:s}) (r) file runpdfbegin pdfpagecount = quit"'.format(file)
+    for f in files:
+        cmd = f'gs -q -dNOSAFER -dNODISPLAY -c "({f:s}) (r) file runpdfbegin pdfpagecount = quit"'
         out = run(cmd, verbose)
         n_pages += [int(out)]
 
@@ -53,28 +53,28 @@ The output is a (list of) integers.
 
 
 def generate_postscript(
-        title=None,
-        author=None,
-        bookmarks=None,
-        pages=None,
+    title=None,
+    author=None,
+    bookmarks=None,
+    pages=None,
 ):
-    r'''
-Generate PostScript script.
+    """
+    Generate PostScript script.
 
-:options:
+    :options:
 
-    **title** (``<str>``)
-        PDF title.
+        **title** (``<str>``)
+            PDF title.
 
-    **author** (``<str>``)
-        PDF author.
+        **author** (``<str>``)
+            PDF author.
 
-    **bookmarks** (``<list<str>>``)
-        List of bookmarks. Length must mage ``pages``.
+        **bookmarks** (``<list<str>>``)
+            List of bookmarks. Length must mage ``pages``.
 
-    **pages** (``<list<int>>``)
-        List of page-numbers. Length must mage ``bookmarks``.
-    '''
+        **pages** (``<list<int>>``)
+            List of page-numbers. Length must mage ``bookmarks``.
+    """
 
     if type(bookmarks) == str:
         bookmarks = [bookmarks]
@@ -85,49 +85,49 @@ Generate PostScript script.
     out = []
 
     if title:
-        out += ['/Title ({0:s})'.format(title)]
+        out += [f"/Title ({title:s})"]
 
     if author:
-        out += ['/Author ({0:s})'.format(author)]
+        out += [f"/Author ({author:s})"]
 
     if bookmarks:
         for bookmark, page in zip(bookmarks, pages):
-            out += ['/Page {0:d} /Title ({1:s}) /OUT pdfmark'.format(page, bookmark)]
+            out += [f"/Page {page:d} /Title ({bookmark:s}) /OUT pdfmark"]
 
     if len(out) == 0:
-        return ''
+        return ""
 
-    return '[ ' + '\n[ '.join(out)
+    return "[ " + "\n[ ".join(out)
 
 
 def combine(
-        files: str | list[str],
-        output: str,
-        openleft:bool=False,
-        openright:bool=False,
-        meta:bool=True,
-        ps:str=None,
-        add_ps:str=None,
-        bookmarks:bool | list[str]=True,
-        title:str='Binder',
-        author:str='pdfcombine',
-        verbose:bool=False,
+    files: str | list[str],
+    output: str,
+    openleft: bool = False,
+    openright: bool = False,
+    meta: bool = True,
+    ps: str = None,
+    add_ps: str = None,
+    bookmarks: bool | list[str] = True,
+    title: str = "Binder",
+    author: str = "pdfcombine",
+    verbose: bool = False,
 ):
-    '''
-Combine PDFs
+    """
+    Combine PDFs
 
-:param files: List of PDF files to combine.
-:param output: Name of output file (overwritten if exists).
-:param openleft: Start each file on a left-page.
-:param openright: Start each file on a right-page.
-:param meta: Write meta-data using a PostScript script.
-:param ps: Overwrite automatically generated PostScript script.
-:param add_ps: Append generated/specified PostScript script.
-:param bookmarks: If ``True`` the filenames are the bookmarks. Otherwise specify name per file.
-:param title: PDF title.
-:param author: PDF author.
-:param verbose: Verbose all commands and their output.
-    '''
+    :param files: List of PDF files to combine.
+    :param output: Name of output file (overwritten if exists).
+    :param openleft: Start each file on a left-page.
+    :param openright: Start each file on a right-page.
+    :param meta: Write meta-data using a PostScript script.
+    :param ps: Overwrite automatically generated PostScript script.
+    :param add_ps: Append generated/specified PostScript script.
+    :param bookmarks: If ``True`` the filenames are the bookmarks. Otherwise specify name per file.
+    :param title: PDF title.
+    :param author: PDF author.
+    :param verbose: Verbose all commands and their output.
+    """
 
     temp_dir = None
 
@@ -137,7 +137,7 @@ Combine PDFs
     if type(bookmarks) == str:
         bookmarks = [bookmarks]
 
-    if bookmarks == True:
+    if bookmarks is True:
         bookmarks = [file for file in files]
 
     if not meta:
@@ -145,19 +145,19 @@ Combine PDFs
 
     # Basic checking
 
-    if not shutil.which('gs'):
-        raise IOError('"gs" not found')
+    if not shutil.which("gs"):
+        raise OSError('"gs" not found')
 
     if openright and openleft:
-        raise IOError('"openright" and "openleft" are exclusive options')
+        raise OSError('"openright" and "openleft" are exclusive options')
 
     for file in files:
         if not os.path.isfile(file):
-            raise IOError('"{0:s}" does not exist'.format(file))
+            raise OSError(f'"{file:s}" does not exist')
 
     for file in files:
         if os.path.abspath(file) == os.path.abspath(output):
-            raise IOError('"{0:s}" is also an input-file, choose a different output'.format(output))
+            raise OSError(f'"{output}" is also an input-file, choose a different output')
 
     # Read number of pages and derive basic information
 
@@ -183,44 +183,42 @@ Combine PDFs
     if meta:
 
         temp_dir = tempfile.mkdtemp()
-        temp_ps = os.path.join(temp_dir, 'pdfcombine.ps')
+        temp_ps = os.path.join(temp_dir, "pdfcombine.ps")
 
         if type(ps) != str:
             ps = generate_postscript(
-                title=title,
-                author=author,
-                bookmarks=bookmarks,
-                pages=start_page)
+                title=title, author=author, bookmarks=bookmarks, pages=start_page
+            )
 
         if type(add_ps) == str:
-            ps += '\n' + add_ps
+            ps += "\n" + add_ps
 
         if verbose:
-            print('\n---- created "{0:s}" ----\n'.format(temp_ps))
+            print(f'\n---- created "{temp_ps:s}" ----\n')
             print(ps)
 
-        open(temp_ps, 'w').write(ps)
+        open(temp_ps, "w").write(ps)
 
     # Construct and run GhostScript command to combine PDFs
 
     if verbose:
-        print('\n---- combining files ----\n')
+        print("\n---- combining files ----\n")
 
-    cmd = 'gs -dNOSAFER -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{0:s}"'.format(output)
+    cmd = f'gs -dNOSAFER -sDEVICE=pdfwrite -dBATCH -dNOPAUSE -q -sPAPERSIZE=a4 -o "{output}"'
 
     if openleft:
-        cmd += ' -c showpage'
+        cmd += " -c showpage"
 
     for i, file in enumerate(files):
 
         if i > 0:
-            if (openleft or openright) and not is_even[i-1]:
-                cmd += ' -c showpage'
+            if (openleft or openright) and not is_even[i - 1]:
+                cmd += " -c showpage"
 
-        cmd += ' -f "{0:s}"'.format(file)
+        cmd += f' -f "{file:s}"'
 
     if meta:
-        cmd += ' ' + temp_ps
+        cmd += " " + temp_ps
 
     run(cmd, verbose)
 
@@ -230,8 +228,8 @@ Combine PDFs
         return
 
     if verbose:
-        print('\n---- cleaning up ----\n')
-        print('rm -r {0:s}'.format(temp_dir))
-        print('')
+        print("\n---- cleaning up ----\n")
+        print(f"rm -r {temp_dir:s}")
+        print("")
 
     shutil.rmtree(temp_dir)
