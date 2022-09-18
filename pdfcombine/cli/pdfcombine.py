@@ -90,7 +90,7 @@ import sys
 import click
 import docopt
 
-from .. import __version__
+from .. import version
 from .. import combine
 
 
@@ -126,7 +126,7 @@ def main():
     Main program.
     """
 
-    args = docopt.docopt(__doc__, version=__version__)
+    args = docopt.docopt(__doc__, version=version)
 
     files = args["<files>"]
     output = args["--output"]

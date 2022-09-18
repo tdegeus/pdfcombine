@@ -4,8 +4,7 @@ import subprocess
 import tempfile
 from itertools import accumulate
 
-__version__ = "1.1.4"
-
+from ._version import version  # noqa: F401
 
 def run(cmd: str, verbose: bool = False):
     """
