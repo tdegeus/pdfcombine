@@ -83,7 +83,7 @@ def generate_postscript(
 
     if bookmarks:
         for bookmark, page in zip(bookmarks, pages):
-            out += [f"/Page {page:d} /Title ({bookmark:s}) /OUT pdfmark"]
+            out += [f"/Page {page:d} /Title <FEFF{bookmark.encode(encoding='utf-16-BE').hex().upper()}> /OUT pdfmark"]
 
     if len(out) == 0:
         return ""
