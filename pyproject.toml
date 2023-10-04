@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+[project]
+authors = [{name = "Tom de Geus", email = "tom@geus.me"}]
+classifiers = ["License :: OSI Approved :: MIT License"]
+dependencies = ["numpy", "click >=4.0", "pyyaml >=1.0", "docopt >=0.6.2"]
+description = "TeX file formatting"
+dynamic = ["version"]
+name = "pdfcombine"
+readme = "README.md"
+requires-python = ">=3.6"
+
+[project.scripts]
+pdfcombine = "pdfcombine.cli.pdfcombine:main"
+
+[project.urls]
+Source = "https://github.com/tdegeus/pdfcombine"
+
+[tool.setuptools_scm]
+write_to = "pdfcombine/_version.py"
