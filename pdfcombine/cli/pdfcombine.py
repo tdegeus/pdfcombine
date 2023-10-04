@@ -142,12 +142,11 @@ def main():
     silent = args["--silent"]
 
     if args["--yaml"]:
-
         info = read_yaml(files)
 
         if "files" in info:
             if len(info["files"]) > 0:
-                if type(info["files"][0]) == dict:
+                if isinstance(info["files"][0], dict):
                     files = [i["file"] for i in info["files"]]
                     bookmarks = [i["title"] for i in info["files"]]
                 else:
@@ -214,5 +213,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()
