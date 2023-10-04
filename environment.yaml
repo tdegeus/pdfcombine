@@ -1,11 +1,11 @@
 channels:
 - conda-forge
 dependencies:
-- python
-- setuptools
-- pip
-- docopt
 - click
-- pyyaml
+- docopt
 - ghostscript
 - matplotlib
+- pip
+- python
+- pyyaml
+- setuptools

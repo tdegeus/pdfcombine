@@ -32,7 +32,7 @@ def number_of_pages(files: list[str], verbose: bool = False) -> list[int]:
 
     return_int = False
 
-    if type(files) == str:
+    if isinstance(files, str):
         files = [files]
         return_int = True
 
@@ -67,10 +67,10 @@ def generate_postscript(
     :param pages: List of page-numbers. Length must mage ``bookmarks``.
     """
 
-    if type(bookmarks) == str:
+    if isinstance(bookmarks, str):
         bookmarks = [bookmarks]
 
-    if type(pages) == int:
+    if isinstance(pages, int):
         pages = [pages]
 
     out = []
@@ -126,10 +126,10 @@ def combine(
 
     temp_dir = None
 
-    if type(files) == str:
+    if isinstance(files, str):
         files = [files]
 
-    if type(bookmarks) == str:
+    if isinstance(bookmarks, str):
         bookmarks = [bookmarks]
 
     if bookmarks is True:
@@ -157,13 +157,11 @@ def combine(
     # Read number of pages and derive basic information
 
     if openleft or openright or bookmarks:
-
         n_pages = number_of_pages(files, verbose)
 
         is_even = [False if n % 2 != 0 else True for n in n_pages]
 
     if bookmarks:
-
         if openleft:
             start_page = [2] + [i if e else i + 1 for i, e in zip(n_pages, is_even)][:-1]
         elif openright:
@@ -176,16 +174,15 @@ def combine(
     # PostScript script to set metadata -> write to temporary file
 
     if meta:
-
         temp_dir = tempfile.mkdtemp()
         temp_ps = os.path.join(temp_dir, "pdfcombine.ps")
 
-        if type(ps) != str:
+        if not isinstance(ps, str):
             ps = generate_postscript(
                 title=title, author=author, bookmarks=bookmarks, pages=start_page
             )
 
-        if type(add_ps) == str:
+        if isinstance(add_ps, str):
             ps += "\n" + add_ps
 
         if verbose:
@@ -205,7 +202,6 @@ def combine(
         cmd += " -c showpage"
 
     for i, file in enumerate(files):
-
         if i > 0:
             if (openleft or openright) and not is_even[i - 1]:
                 cmd += " -c showpage"
